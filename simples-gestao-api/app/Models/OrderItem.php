@@ -6,12 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Model OrderItem — Item de um pedido.
- *
- * Tabela pivô entre Order e Product.
- * Armazena o preço congelado (snapshot) no momento da venda.
- */
 class OrderItem extends Model
 {
     use HasFactory;
@@ -31,8 +25,6 @@ class OrderItem extends Model
             'subtotal' => 'decimal:2',
         ];
     }
-
-    // ─── Relationships ─────────────────────────────────────────────
 
     public function order(): BelongsTo
     {

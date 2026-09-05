@@ -7,18 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Model Order — Pedido/Venda.
- *
- * O model mais complexo do sistema: tem múltiplos relacionamentos
- * e lógica de negócio.
- *
- * Relacionamentos:
- *   - belongsTo Customer (quem comprou — opcional)
- *   - belongsTo User (quem registrou)
- *   - hasMany OrderItem (itens do pedido)
- *   - hasMany Transaction (transações financeiras geradas)
- */
 class Order extends Model
 {
     use HasFactory;
@@ -44,45 +32,28 @@ class Order extends Model
         ];
     }
 
-    // ─── Relationships ─────────────────────────────────────────────
-
-    /**
-     * O cliente que fez o pedido (pode ser null — venda de balcão).
-     */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    /**
-     * O usuário que registrou a venda.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Itens do pedido.
-     */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    /**
-     * Transações financeiras vinculadas a este pedido.
-     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
-    // ─── Helpers ────────────────────────────────────────────────────
-
     /**
      * Recalcula subtotal e total com base nos itens.
-     * Chamado depois de adicionar/remover itens.
      */
     public function recalculateTotals(): void
     {
@@ -92,8 +63,7 @@ class Order extends Model
     }
 
     /**
-     * Gera um número de pedido único.
-     * Formato: PED-YYYYMMDD-NNN (ex: PED-20260905-001)
+     * Gera número de pedido sequencial: PED-YYYYMMDD-NNN
      */
     public static function generateOrderNumber(): string
     {

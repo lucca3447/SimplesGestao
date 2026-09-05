@@ -6,10 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Model FinancialCategory — Categoria financeira.
- * Classifica transações como entrada (income) ou saída (expense).
- */
 class FinancialCategory extends Model
 {
     use HasFactory;
@@ -18,8 +14,6 @@ class FinancialCategory extends Model
         'name',
         'type',
     ];
-
-    // ─── Relationships ─────────────────────────────────────────────
 
     public function transactions(): HasMany
     {
