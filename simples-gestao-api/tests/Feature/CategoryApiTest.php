@@ -11,6 +11,12 @@ class CategoryApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
+    }
+
     public function test_can_list_categories(): void
     {
         Category::factory()->count(3)->create();

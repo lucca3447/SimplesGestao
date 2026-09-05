@@ -11,6 +11,12 @@ class ProductApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
+    }
+
     public function test_can_list_products_with_category(): void
     {
         Product::factory()->count(2)->create();
