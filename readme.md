@@ -1,7 +1,7 @@
-# 🚀 SimplesGestão — Sistema de Gestão para Pequenos Negócios
+# 🚀 Simples — Sistema de Gestão Empresarial (ERP)
 
-> **Projeto Fullstack Desacoplado** com API REST em **Laravel 11**, banco de dados **PostgreSQL (Docker)**, autenticação **Laravel Sanctum** e frontend em **React (Vite + Tailwind CSS)**.  
-> Desenvolvido com foco nas necessidades reais de gestão para PMEs (clientes, catálogo, controle de estoque crítico, pedidos com congelamento histórico de preços e fluxo de caixa consolidado).
+> **Projeto Fullstack Desacoplado** composto por API REST em **Laravel 11**, banco de dados relacional **PostgreSQL (Docker)**, autenticação stateless **Laravel Sanctum** e Single Page Application (SPA) em **Vue 3 (Vite + Tailwind CSS + Pinia)**.  
+> Desenvolvido com foco nas necessidades reais de gestão para pequenas e médias empresas: clientes, catálogo, controle de estoque crítico, pedidos com congelamento histórico de preços e fluxo de caixa contábil consolidado.
 
 ---
 
@@ -11,8 +11,8 @@ O projeto adota arquitetura desacoplada (Headless / API-First):
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│                 Frontend (React + Vite)                 │
-│      Tailwind CSS · Recharts · Axios Interceptors       │
+│              Frontend SPA (Vue 3 + Vite)                │
+│    Tailwind CSS · Pinia · Chart.js · Lucide Icons       │
 └────────────────────────────┬────────────────────────────┘
                              │  HTTP / JSON (Bearer Token)
                              ▼
@@ -34,16 +34,20 @@ O projeto adota arquitetura desacoplada (Headless / API-First):
 
 ### Backend
 * **PHP 8.4** & **Laravel 11+**
-* **PostgreSQL 16** via Docker Compose
-* **Laravel Sanctum:** Autenticação stateless via Bearer Tokens
-* **Eloquent ORM:** Relacionamentos `hasMany` / `belongsTo`, casts nativos e locks pessimistas
-* **Dedoc Scramble:** Documentação interativa OpenAPI / Swagger UI
-* **PHPUnit:** 29 testes de integração automatizados com 100% de cobertura dos fluxos críticos
+* **PostgreSQL 16** via Docker Compose (porta `5433`)
+* **Laravel Sanctum:** Autenticação stateless via Bearer Tokens com persistência segura
+* **Eloquent ORM:** Relacionamentos `hasMany` / `belongsTo`, casts nativos e locks pessimistas (`lockForUpdate`)
+* **Dedoc Scramble:** Documentação interativa OpenAPI 3.1 / Swagger UI nativa
+* **PHPUnit:** 29 testes de integração automatizados com 100% de aprovação (221 asserções)
 
-### Frontend (Em desenvolvimento)
-* **React 18** com **Vite**
-* **Tailwind CSS:** Layout moderno para ERP corporativo com paleta profissional e contraste acessível
-* **Recharts:** Visualização de fluxo de caixa (entradas × saídas) e gráficos de distribuição
+### Frontend
+* **Vue 3 (Composition API & `<script setup>`)** com **Vite**
+* **Pinia:** Gerenciamento centralizado de estado reativo (sessão, perfil do usuário e token Sanctum)
+* **Vue Router 4:** Roteamento com Navigation Guards (`beforeEach`) para proteção de rotas privadas
+* **Tailwind CSS:** Design system corporativo inspirado em interfaces de gestão modernas (paleta `#e06236`, `#208b5d` e fundos neutros `#f5f6f8`)
+* **Chart.js & vue-chartjs:** Visualização de fluxo de caixa consolidado (entradas × saídas) e despesas por categoria
+* **Lucide Vue:** Ícones vetoriais padronizados
+* **Práticas Modern Web Guidance:** Modais com elemento nativo `<dialog closedby="any">`, light-dismiss com detecção de coordenadas do backdrop, formulários semânticos HTML5 com validações e acessibilidade ARIA
 
 ---
 
@@ -52,48 +56,61 @@ O projeto adota arquitetura desacoplada (Headless / API-First):
 ### Pré-requisitos
 * Docker e Docker Compose instalados
 * PHP 8.2+ e Composer
-* Node.js 18+
-
-### 1. Iniciar o Banco de Dados (PostgreSQL)
-Na pasta do backend, inicie o container Docker:
-```bash
-cd simples-gestao-api
-docker compose up -d
-```
-*(O banco roda isolado na porta `5433` com volume persistente).*
-
-### 2. Configurar o Ambiente e Dependências
-```bash
-composer install
-cp .env.example .env # se necessário
-php artisan key:generate
-```
-
-### 3. Rodar as Migrations e Popular com Dados de Teste
-```bash
-php artisan migrate:fresh --seed
-```
-O seeder criará automaticamente:
-* 2 usuários (admin e operador)
-* 15 clientes com CPF/CNPJ válidos
-* 14 produtos com estoque e preços reais
-* 20 pedidos com histórico de vendas
-* Mais de 30 lançamentos contábeis de receitas e despesas
-
-### 4. Iniciar a API
-```bash
-php artisan serve
-```
-A API estará disponível em: `http://localhost:8000`
+* Node.js 18+ e npm
 
 ---
 
-## 🔑 Credenciais Padrão de Teste
+### 1. Iniciar o Backend (API REST)
 
-| E-mail | Senha | Papel (Role) |
-|---|---|---|
-| `admin@simplesgestao.com` | `password` | Administrador |
-| `maria@simplesgestao.com` | `password` | Operador |
+```bash
+# Entrar no diretório da API
+cd simples-gestao-api
+
+# Subir container do PostgreSQL 16 isolado na porta 5433
+docker compose up -d
+
+# Instalar dependências PHP
+composer install
+
+# Executar migrações e popular com dados de demonstração
+php artisan migrate:fresh --seed
+
+# Iniciar servidor da API
+php artisan serve
+```
+
+A API estará disponível em: `http://localhost:8000`  
+Documentação Swagger interativa: `http://localhost:8000/docs/api`
+
+---
+
+### 2. Iniciar o Frontend (Vue 3 SPA)
+
+Em outro terminal:
+
+```bash
+# Entrar no diretório do frontend
+cd simples-gestao-web
+
+# Instalar dependências JavaScript
+npm install
+
+# Iniciar servidor de desenvolvimento do Vite
+npm run dev
+```
+
+O aplicativo estará acessível em: `http://localhost:5173`
+
+---
+
+## 🔑 Credenciais Padrão de Demonstração
+
+O seeder inicializa automaticamente contas pré-configuradas com botão de 1 clique na tela de login:
+
+| E-mail | Senha | Papel (Role) | Permissões |
+|---|---|---|---|
+| `admin@simplesgestao.com` | `password` | Administrador | Acesso irrestrito a todas as métricas, cadastros e lançamentos |
+| `maria@simplesgestao.com` | `password` | Operador | Gestão de clientes, produtos, emissão de pedidos e estoque |
 
 ---
 
@@ -129,7 +146,7 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 | `POST` | `/api/customers` | **Sim** | Cadastra um novo cliente com validação de CPF/CNPJ. |
 | `GET` | `/api/customers/{id}` | **Sim** | Detalha um cliente específico. |
 | `PUT` | `/api/customers/{id}` | **Sim** | Atualiza dados cadastrais. |
-| `DELETE` | `/api/customers/{id}` | **Sim** | Exclui cliente (preserva pedidos históricos desvinculando ID). |
+| `DELETE` | `/api/customers/{id}` | **Sim** | Exclui cliente do sistema. |
 
 ---
 
@@ -149,7 +166,7 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 
 | Método | Endpoint | Protegido? | Descrição |
 |---|---|---|---|
-| `GET` | `/api/products` | **Sim** | Lista produtos com categoria (`search`, `category_id`, `is_active`). |
+| `GET` | `/api/products` | **Sim** | Lista produtos com categoria (`search`, `category_id`, `is_active`, `low_stock`). |
 | `GET` | `/api/products/low-stock` | **Sim** | Lista apenas produtos com **estoque crítico** (`saldo <= mínimo`). |
 | `POST` | `/api/products` | **Sim** | Cadastra produto com SKU, preço, custo e estoque mínimo. |
 | `GET` | `/api/products/{id}` | **Sim** | Detalha um produto. |
@@ -164,10 +181,10 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 |---|---|---|---|
 | `GET` | `/api/orders` | **Sim** | Lista pedidos (`status`, `customer_id`, `start_date`, `end_date`). |
 | `POST` | `/api/orders` | **Sim** | Cria pedido com múltiplos itens dentro de transação atômica. |
-| `GET` | `/api/orders/{id}` | **Sim** | Detalha pedido com itens, cliente e vendedor. |
+| `GET` | `/api/orders/{id}` | **Sim** | Detalha pedido com itens, cliente e operador. |
 | `PUT` | `/api/orders/{id}` | **Sim** | Atualiza forma de pagamento, desconto ou notas. |
-| `PATCH` | `/api/orders/{id}/confirm` | **Sim** | **Confirma venda:** valida estoque, baixa saldo e gera receita contábil. |
-| `PATCH` | `/api/orders/{id}/cancel` | **Sim** | **Cancela venda:** estorna estoque e remove a receita financeira. |
+| `PATCH` | `/api/orders/{id}/confirm` | **Sim** | **Confirma venda:** valida estoque, dá baixa atômica e gera receita contábil. |
+| `PATCH` | `/api/orders/{id}/cancel` | **Sim** | **Cancela venda:** estorna estoque ao inventário e anula o lançamento financeiro. |
 | `DELETE` | `/api/orders/{id}` | **Sim** | Exclui pedido (apenas se já estiver cancelado). |
 
 ---
@@ -188,7 +205,7 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 | Método | Endpoint | Protegido? | Descrição |
 |---|---|---|---|
 | `GET` | `/api/transactions` | **Sim** | Lista receitas e despesas (`type`, `period`, `category_id`). |
-| `POST` | `/api/transactions` | **Sim** | Registra lançamento financeiro avulso (aluguel, contas, etc.). |
+| `POST` | `/api/transactions` | **Sim** | Registra lançamento financeiro avulso (aluguel, fornecedores, etc.). |
 | `GET` | `/api/transactions/{id}` | **Sim** | Detalha lançamento. |
 | `PUT` | `/api/transactions/{id}` | **Sim** | Atualiza transação avulsa. |
 | `DELETE` | `/api/transactions/{id}` | **Sim** | Exclui transação avulsa (bloqueia se atrelada a pedido). |
@@ -199,8 +216,8 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 
 | Método | Endpoint | Protegido? | Descrição |
 |---|---|---|---|
-| `GET` | `/api/dashboard/summary` | **Sim** | Métricas consolidadas: Receita, Despesas, Saldo Líquido, Ticket Médio e Alertas. |
-| `GET` | `/api/dashboard/charts` | **Sim** | Dados estruturados para Recharts: Fluxo de Caixa mensal, Despesas por Categoria e Top 5 Produtos. |
+| `GET` | `/api/dashboard/summary` | **Sim** | 6 Métricas consolidadas: Contas a Pagar, Contas a Receber, Saldo Líquido, Vendas Faturadas, Baixo Estoque e Total de Clientes. |
+| `GET` | `/api/dashboard/charts` | **Sim** | Dados estruturados para gráficos: Fluxo de Caixa mensal, Despesas por Categoria, Top 5 Produtos e Últimos Pedidos. |
 
 ---
 
@@ -228,6 +245,7 @@ Pass: 29 tests, 221 assertions (0 failures)
 ## 💡 Decisões Técnicas Notáveis
 
 1. **Snapshot de Preço Histórico:** O preço unitário do produto é gravado no momento da venda em `order_items.unit_price`. Reajustes futuros no catálogo nunca alteram vendas antigas.
-2. **Atomicidade e Concorrência:** O fechamento de pedidos utiliza `DB::transaction()` e `Product::lockForUpdate()` no PostgreSQL para evitar *race conditions* de estoque.
+2. **Atomicidade e Concorrência:** O fechamento de pedidos e confirmação de faturamento utilizam `DB::transaction()` e `Product::lockForUpdate()` no PostgreSQL para evitar *race conditions* de estoque.
 3. **Prevenção de Escalação de Privilégios:** O cadastro público de usuários força o papel `operator` no backend, ignorando qualquer tentativa de injeção de `role: admin`.
 4. **Precisão Monetária:** Todos os valores financeiros são modelados em colunas `decimal(10,2)` e `decimal(12,2)`, eliminando erros de ponto flutuante.
+5. **Modern Web Standards:** Adoção de `<dialog closedby="any">` para caixas modais declarativas com suporte a light dismiss e fallback progressivo para navegadores legados, formulários semânticos e tipagem estrita de inputs.
