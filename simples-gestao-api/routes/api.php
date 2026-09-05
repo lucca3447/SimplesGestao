@@ -1,17 +1,32 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Rotas públicas de autenticação
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
-Route::apiResource('customers', CustomerController::class);
-Route::apiResource('categories', CategoryController::class);
+// Rotas protegidas por token Sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
+    });
 
-Route::get('products/low-stock', [ProductController::class, 'lowStock']);
-Route::apiResource('products', ProductController::class);
+    Route::apiResource('customers', CustomerController::class);
+    Route::apiResource('categories', CategoryController::class);
+
+    Route::get('products/low-stock', [ProductController::class, 'lowStock']);
+    Route::apiResource('products', ProductController::class);
+
+    Route::patch('orders/{order}/confirm', [OrderController::class, 'confirm']);
+    Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel']);
+    Route::apiResource('orders', OrderController::class);
+});
