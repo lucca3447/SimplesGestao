@@ -148,6 +148,8 @@ onMounted(() => {
         :value="formatCurrency(summary.metrics.total_expense)"
         subtitle="Saídas no período"
         color="red"
+        to="/transactions?type=expense"
+        info-text="Total de despesas operacionais no período. Clique para abrir o extrato de saídas."
       >
         <template #icon>
           <TrendingDown :size="15" />
@@ -160,6 +162,8 @@ onMounted(() => {
         :value="formatCurrency(summary.metrics.total_income)"
         subtitle="Entradas no período"
         color="green"
+        to="/transactions?type=income"
+        info-text="Total de faturamento e entradas no período. Clique para ver o extrato de receitas."
       >
         <template #icon>
           <TrendingUp :size="15" />
@@ -172,6 +176,8 @@ onMounted(() => {
         :value="formatCurrency(summary.metrics.net_balance)"
         subtitle="Resultado operacional"
         color="blue"
+        to="/transactions"
+        info-text="Saldo líquido da operação (Receitas menos Despesas). Clique para acessar o livro caixa."
       >
         <template #icon>
           <Wallet :size="15" />
@@ -184,6 +190,8 @@ onMounted(() => {
         :value="`${summary.metrics.confirmed_orders_count} pedidos`"
         :subtitle="`Ticket médio ${formatCurrency(summary.metrics.average_ticket)}`"
         color="orange"
+        to="/orders"
+        info-text="Pedidos faturados e confirmados. Clique para ver a listagem de vendas."
       >
         <template #icon>
           <ShoppingCart :size="15" />
@@ -196,6 +204,8 @@ onMounted(() => {
         :value="`${summary.metrics.low_stock_count} itens`"
         subtitle="Necessita reposição"
         color="red"
+        to="/products?filter=low_stock"
+        info-text="Produtos com quantidade em estoque menor ou igual ao mínimo. Clique para gerenciar."
       >
         <template #icon>
           <AlertTriangle :size="15" />
@@ -208,6 +218,8 @@ onMounted(() => {
         :value="`${summary.metrics.total_customers} ativos`"
         subtitle="Base cadastrada"
         color="purple"
+        to="/customers"
+        info-text="Clientes e parceiros registrados no sistema. Clique para consultar."
       >
         <template #icon>
           <Users :size="15" />

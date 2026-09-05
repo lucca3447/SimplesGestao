@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/formatters';
 import AppModal from '@/components/common/AppModal.vue';
@@ -22,6 +23,7 @@ import {
 } from '@lucide/vue';
 
 // Listagem de Pedidos
+const route = useRoute();
 const orders = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
@@ -284,9 +286,29 @@ function showNotification(msg) {
   }, 4000);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  if (route.query.status) {
+    selectedStatus.value = String(route.query.status);
+  }
   loadOrders();
-  loadSelectData();
+  await loadSelectData();
+
+  if (route.query.action === 'new') {
+    openCreateOrderModal();
+  }
+});
+
+watch(() => route.query.status, (newStatus) => {
+  if (newStatus !== undefined) {
+    selectedStatus.value = String(newStatus);
+    loadOrders(1);
+  }
+});
+
+watch(() => route.query.action, (newAction) => {
+  if (newAction === 'new') {
+    openCreateOrderModal();
+  }
 });
 </script>
 

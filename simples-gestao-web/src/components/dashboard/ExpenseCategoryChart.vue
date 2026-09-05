@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { Doughnut } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -65,6 +66,8 @@ const chartOptions = {
   },
   cutout: '68%',
 };
+
+const router = useRouter();
 </script>
 
 <template>
@@ -73,9 +76,16 @@ const chartOptions = {
     <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
       <div class="flex items-center gap-1.5 font-bold text-gray-800">
         <span>Despesas por Categoria</span>
-        <Info :size="13" class="text-gray-400 cursor-pointer hover:text-gray-600" />
+        <Info :size="13" class="text-gray-400 cursor-help" title="Distribuição percentual das despesas dos últimos 90 dias" />
       </div>
-      <ExternalLink :size="13" class="text-gray-400 cursor-pointer hover:text-gray-600" />
+      <button
+        type="button"
+        title="Ver despesas detalhadas"
+        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer"
+        @click="router.push('/transactions?type=expense')"
+      >
+        <ExternalLink :size="13" />
+      </button>
     </div>
 
     <!-- Chart Container -->

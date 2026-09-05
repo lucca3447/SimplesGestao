@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import AppModal from '@/components/common/AppModal.vue';
@@ -24,6 +25,7 @@ import {
 } from '@lucide/vue';
 
 // Listagem
+const route = useRoute();
 const transactions = ref([]);
 const categories = ref([]);
 const loading = ref(false);
@@ -268,9 +270,29 @@ function showNotification(msg) {
   }, 4000);
 }
 
-onMounted(() => {
-  loadCategories();
+onMounted(async () => {
+  if (route.query.type) {
+    selectedType.value = String(route.query.type);
+  }
+  await loadCategories();
   loadTransactions();
+
+  if (route.query.action === 'new') {
+    openCreateModal(route.query.type === 'income' ? 'income' : 'expense');
+  }
+});
+
+watch(() => route.query.type, (newType) => {
+  if (newType !== undefined) {
+    selectedType.value = String(newType);
+    loadTransactions(1);
+  }
+});
+
+watch(() => route.query.action, (newAction) => {
+  if (newAction === 'new') {
+    openCreateModal(route.query.type === 'income' ? 'income' : 'expense');
+  }
 });
 </script>
 

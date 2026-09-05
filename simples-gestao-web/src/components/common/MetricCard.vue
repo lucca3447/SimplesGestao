@@ -1,7 +1,10 @@
 <script setup>
+import { useRouter } from 'vue-router';
 import { Info, ExternalLink } from '@lucide/vue';
 
-defineProps({
+const router = useRouter();
+
+const props = defineProps({
   title: {
     type: String,
     required: true,
@@ -18,6 +21,14 @@ defineProps({
     type: String,
     default: 'green', // green, red, blue, orange, purple
   },
+  to: {
+    type: String,
+    default: '',
+  },
+  infoText: {
+    type: String,
+    default: '',
+  },
 });
 
 const colorClasses = {
@@ -27,17 +38,44 @@ const colorClasses = {
   orange: 'bg-amber-50 text-amber-600',
   purple: 'bg-purple-50 text-purple-600',
 };
+
+function handleClick() {
+  if (props.to) {
+    router.push(props.to);
+  }
+}
 </script>
 
 <template>
-  <div class="bg-white rounded-lg border border-gray-200/90 p-4 shadow-xs flex flex-col justify-between hover:border-gray-300 transition-all">
+  <div
+    class="bg-white rounded-lg border border-gray-200/90 p-4 shadow-xs flex flex-col justify-between transition-all select-none"
+    :class="[
+      to ? 'cursor-pointer hover:border-simples-orange/60 hover:shadow-sm hover:-translate-y-0.5' : 'hover:border-gray-300'
+    ]"
+    @click="handleClick"
+  >
     <!-- Header: Título + ⓘ + ↗ -->
     <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
       <div class="flex items-center gap-1 font-medium text-gray-700 truncate">
         <span>{{ title }}</span>
-        <Info :size="12" class="text-gray-400 cursor-pointer hover:text-gray-600 flex-shrink-0" />
+        <div class="relative group/tooltip">
+          <Info
+            :size="12"
+            :title="infoText || title"
+            class="text-gray-400 hover:text-gray-600 flex-shrink-0 cursor-help"
+          />
+        </div>
       </div>
-      <ExternalLink :size="12" class="text-gray-400 cursor-pointer hover:text-gray-600 flex-shrink-0" />
+      <button
+        v-if="to"
+        type="button"
+        title="Acessar módulo detalhado"
+        class="text-gray-400 hover:text-simples-orange transition-colors flex-shrink-0 cursor-pointer"
+        @click.stop="handleClick"
+      >
+        <ExternalLink :size="12" />
+      </button>
+      <ExternalLink v-else :size="12" class="text-gray-300 flex-shrink-0" />
     </div>
 
     <!-- Body: Ícone em círculo pastel + Valor grande + Rótulo de período -->

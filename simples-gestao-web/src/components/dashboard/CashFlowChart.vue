@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -81,6 +82,8 @@ const chartOptions = {
     },
   },
 };
+
+const router = useRouter();
 </script>
 
 <template>
@@ -89,9 +92,16 @@ const chartOptions = {
     <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
       <div class="flex items-center gap-1.5 font-bold text-gray-800">
         <span>Fluxo de Caixa Consolidado</span>
-        <Info :size="13" class="text-gray-400 cursor-pointer hover:text-gray-600" />
+        <Info :size="13" class="text-gray-400 cursor-help" title="Entradas e saídas financeiras consolidadas mês a mês" />
       </div>
-      <ExternalLink :size="13" class="text-gray-400 cursor-pointer hover:text-gray-600" />
+      <button
+        type="button"
+        title="Abrir livro caixa detalhado"
+        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer"
+        @click="router.push('/transactions')"
+      >
+        <ExternalLink :size="13" />
+      </button>
     </div>
 
     <!-- Chart Container -->

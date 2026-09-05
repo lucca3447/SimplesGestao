@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { formatCurrency } from '@/utils/formatters';
 import AppModal from '@/components/common/AppModal.vue';
@@ -21,6 +22,7 @@ import {
 } from '@lucide/vue';
 
 // Dados
+const route = useRoute();
 const products = ref([]);
 const categories = ref([]);
 const loading = ref(false);
@@ -242,9 +244,27 @@ function showNotification(msg) {
   }, 4000);
 }
 
-onMounted(() => {
-  loadCategories();
+onMounted(async () => {
+  if (route.query.filter === 'low_stock') {
+    onlyLowStock.value = true;
+  }
+  await loadCategories();
   loadProducts();
+
+  if (route.query.action === 'new') {
+    openCreateProductModal();
+  }
+});
+
+watch(() => route.query.filter, (newFilter) => {
+  onlyLowStock.value = newFilter === 'low_stock';
+  loadProducts(1);
+});
+
+watch(() => route.query.action, (newAction) => {
+  if (newAction === 'new') {
+    openCreateProductModal();
+  }
 });
 </script>
 

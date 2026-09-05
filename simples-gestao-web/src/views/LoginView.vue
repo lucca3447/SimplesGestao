@@ -2,8 +2,9 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import AppModal from '@/components/common/AppModal.vue';
 import logoFull from '@/assets/logo-full.png';
-import { LogIn, AlertCircle, Loader2 } from '@lucide/vue';
+import { LogIn, AlertCircle, Loader2, KeyRound, Check } from '@lucide/vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -11,6 +12,7 @@ const auth = useAuthStore();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const isForgotModalOpen = ref(false);
 
 async function handleSubmit() {
   errorMessage.value = '';
@@ -31,6 +33,11 @@ function fillDemoCredentials(type = 'admin') {
     password.value = 'password';
   }
   handleSubmit();
+}
+
+function selectDemoAndClose(type = 'admin') {
+  isForgotModalOpen.value = false;
+  fillDemoCredentials(type);
 }
 </script>
 
@@ -71,7 +78,13 @@ function fillDemoCredentials(type = 'admin') {
         <div class="space-y-1">
           <div class="flex items-center justify-between">
             <label for="password" class="block text-xs font-semibold text-gray-700">Senha de acesso</label>
-            <a href="#" class="text-[11px] font-semibold text-simples-orange hover:underline">Esqueceu a senha?</a>
+            <button
+              type="button"
+              class="text-[11px] font-semibold text-simples-orange hover:underline cursor-pointer"
+              @click="isForgotModalOpen = true"
+            >
+              Esqueceu a senha?
+            </button>
           </div>
           <input
             id="password"
@@ -111,7 +124,7 @@ function fillDemoCredentials(type = 'admin') {
       <div class="grid grid-cols-2 gap-2.5">
         <button
           type="button"
-          class="py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition-colors text-center"
+          class="py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition-colors text-center cursor-pointer"
           @click="fillDemoCredentials('admin')"
         >
           👤 Admin
@@ -120,7 +133,7 @@ function fillDemoCredentials(type = 'admin') {
 
         <button
           type="button"
-          class="py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition-colors text-center"
+          class="py-2 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 transition-colors text-center cursor-pointer"
           @click="fillDemoCredentials('operator')"
         >
           👥 Operador
@@ -128,5 +141,62 @@ function fillDemoCredentials(type = 'admin') {
         </button>
       </div>
     </div>
+
+    <!-- Modal Recuperação de Senha Demo -->
+    <AppModal
+      v-model="isForgotModalOpen"
+      title="Recuperação de Acesso"
+      max-width="max-w-md"
+    >
+      <div class="space-y-4 text-xs text-gray-600">
+        <div class="w-10 h-10 rounded-full bg-orange-50 text-simples-orange flex items-center justify-center mx-auto">
+          <KeyRound :size="20" />
+        </div>
+        <div class="text-center space-y-1">
+          <h4 class="text-sm font-bold text-gray-900">Credenciais de Demonstração</h4>
+          <p>Para facilitar a avaliação do sistema, você pode entrar instantaneamente utilizando as contas abaixo:</p>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            class="p-3 bg-gray-50 hover:bg-orange-50/50 border border-gray-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors"
+            @click="selectDemoAndClose('admin')"
+          >
+            <div>
+              <p class="font-bold text-gray-900">Administrador</p>
+              <p class="text-[11px] text-gray-500 font-mono">admin@simplesgestao.com · Senha: password</p>
+            </div>
+            <span class="text-xs font-bold text-simples-orange flex items-center gap-1">
+              <span>Usar</span>
+              <Check :size="14" />
+            </span>
+          </div>
+
+          <div
+            class="p-3 bg-gray-50 hover:bg-orange-50/50 border border-gray-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors"
+            @click="selectDemoAndClose('operator')"
+          >
+            <div>
+              <p class="font-bold text-gray-900">Operador</p>
+              <p class="text-[11px] text-gray-500 font-mono">maria@simplesgestao.com · Senha: password</p>
+            </div>
+            <span class="text-xs font-bold text-simples-orange flex items-center gap-1">
+              <span>Usar</span>
+              <Check :size="14" />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <button
+          type="button"
+          class="px-4 py-2 border border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg text-xs font-semibold cursor-pointer"
+          @click="isForgotModalOpen = false"
+        >
+          Fechar
+        </button>
+      </template>
+    </AppModal>
   </div>
 </template>

@@ -7,7 +7,7 @@ const auth = useAuthStore();
 const router = useRouter();
 
 function goToNewOrder() {
-  router.push('/orders');
+  router.push({ path: '/orders', query: { action: 'new' } });
 }
 </script>
 
