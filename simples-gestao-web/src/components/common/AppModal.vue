@@ -43,6 +43,24 @@ function handleDialogClose() {
   emit('close');
 }
 
+// Fallback de clique fora (light-dismiss) para navegadores que ainda não suportam closedby="any" nativo
+function handleBackdropClick(event) {
+  if (!dialogRef.value) return;
+  if (event.target !== dialogRef.value) return;
+
+  const rect = dialogRef.value.getBoundingClientRect();
+  const isInside = (
+    rect.top <= event.clientY &&
+    event.clientY <= rect.top + rect.height &&
+    rect.left <= event.clientX &&
+    event.clientX <= rect.left + rect.width
+  );
+
+  if (!isInside) {
+    handleClose();
+  }
+}
+
 onMounted(() => {
   if (props.modelValue && dialogRef.value) {
     dialogRef.value.showModal();
@@ -53,20 +71,24 @@ onMounted(() => {
 <template>
   <dialog
     ref="dialogRef"
+    closedby="any"
+    aria-labelledby="app-modal-title"
     class="rounded-2xl p-0 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm border-0 m-auto fixed inset-0 w-full overflow-hidden transition-all text-gray-800"
     :class="maxWidth"
     @close="handleDialogClose"
+    @click="handleBackdropClick"
   >
     <div class="bg-white flex flex-col max-h-[90vh]">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <h3 class="text-lg font-bold text-gray-900">{{ title }}</h3>
+        <h3 id="app-modal-title" class="text-base font-bold text-gray-900">{{ title }}</h3>
         <button
           type="button"
-          class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Fechar janela"
+          class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           @click="handleClose"
         >
-          <X :size="20" />
+          <X :size="18" />
         </button>
       </div>
 
