@@ -42,7 +42,7 @@ O projeto adota arquitetura desacoplada (Headless / API-First):
 
 ### Frontend (Em desenvolvimento)
 * **React 18** com **Vite**
-* **Tailwind CSS:** Layout inspirado no design system da Conexa (sidebar verde-petróleo `#0f2d2e`, botões em laranja `#f97316`)
+* **Tailwind CSS:** Layout moderno para ERP corporativo com paleta profissional e contraste acessível
 * **Recharts:** Visualização de fluxo de caixa (entradas × saídas) e gráficos de distribuição
 
 ---
