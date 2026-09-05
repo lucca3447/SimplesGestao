@@ -10,6 +10,12 @@ class CustomerApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
+    }
+
     public function test_can_list_customers(): void
     {
         Customer::factory()->count(3)->create();
