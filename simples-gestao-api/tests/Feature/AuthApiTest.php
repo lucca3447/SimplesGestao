@@ -25,10 +25,30 @@ class AuthApiTest extends TestCase
                 'user' => ['id', 'name', 'email', 'role'],
                 'token',
             ])
-            ->assertJsonPath('user.email', 'novo@teste.com');
+            ->assertJsonPath('user.email', 'novo@teste.com')
+            ->assertJsonPath('user.role', 'operator');
 
         $this->assertDatabaseHas('users', [
             'email' => 'novo@teste.com',
+            'role' => 'operator',
+        ]);
+    }
+
+    public function test_registration_always_forces_operator_role(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Tentativa Admin',
+            'email' => 'hacker@teste.com',
+            'password' => 'senha123',
+            'role' => 'admin',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('user.role', 'operator');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'hacker@teste.com',
+            'role' => 'operator',
         ]);
     }
 
