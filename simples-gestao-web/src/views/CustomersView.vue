@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import apiClient from '@/api/client';
 import { formatCpfCnpj, formatDate } from '@/utils/formatters';
 import AppModal from '@/components/common/AppModal.vue';
@@ -22,6 +23,7 @@ import {
 } from '@lucide/vue';
 
 // Estado de dados
+const route = useRoute();
 const customers = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
@@ -176,7 +178,17 @@ function showNotification(msg) {
 }
 
 onMounted(() => {
+  if (route.query.search) {
+    searchQuery.value = String(route.query.search);
+  }
   loadCustomers();
+});
+
+watch(() => route.query.search, (newSearch) => {
+  if (newSearch !== undefined) {
+    searchQuery.value = String(newSearch);
+    loadCustomers(1);
+  }
 });
 </script>
 
