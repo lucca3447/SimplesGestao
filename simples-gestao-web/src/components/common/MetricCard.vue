@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { Info, ExternalLink } from '@lucide/vue';
+import { ExternalLink } from '@lucide/vue';
 
 const router = useRouter();
 
@@ -22,10 +22,6 @@ const props = defineProps({
     default: 'green', // green, red, blue, orange, purple
   },
   to: {
-    type: String,
-    default: '',
-  },
-  infoText: {
     type: String,
     default: '',
   },
@@ -54,22 +50,13 @@ function handleClick() {
     ]"
     @click="handleClick"
   >
-    <!-- Header: Título + ⓘ + ↗ -->
+    <!-- Header: Título + ↗ -->
     <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-      <div class="flex items-center gap-1 font-medium text-gray-700 truncate">
-        <span>{{ title }}</span>
-        <div class="relative group/tooltip">
-          <Info
-            :size="12"
-            :title="infoText || title"
-            class="text-gray-400 hover:text-gray-600 flex-shrink-0 cursor-help"
-          />
-        </div>
-      </div>
+      <span class="font-medium text-gray-700 truncate">{{ title }}</span>
       <button
         v-if="to"
         type="button"
-        title="Acessar módulo detalhado"
+        title="Acessar listagem completa"
         class="text-gray-400 hover:text-simples-orange transition-colors flex-shrink-0 cursor-pointer"
         @click.stop="handleClick"
       >

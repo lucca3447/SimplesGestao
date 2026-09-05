@@ -9,7 +9,7 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js';
-import { Info, ExternalLink } from '@lucide/vue';
+import { ExternalLink } from '@lucide/vue';
 import { formatCurrency } from '@/utils/formatters';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
@@ -74,16 +74,14 @@ const router = useRouter();
   <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex flex-col justify-between">
     <!-- Header -->
     <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-      <div class="flex items-center gap-1.5 font-bold text-gray-800">
-        <span>Despesas por Categoria</span>
-        <Info :size="13" class="text-gray-400 cursor-help" title="Distribuição percentual das despesas dos últimos 90 dias" />
-      </div>
+      <span class="font-bold text-gray-800">Despesas por Categoria</span>
       <button
         type="button"
         title="Ver despesas detalhadas"
-        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer"
+        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
         @click="router.push('/transactions?type=expense')"
       >
+        <span>Ver despesas</span>
         <ExternalLink :size="13" />
       </button>
     </div>

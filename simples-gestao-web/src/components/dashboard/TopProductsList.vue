@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { Info, ExternalLink, Package } from '@lucide/vue';
+import { ExternalLink, Package } from '@lucide/vue';
 import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
@@ -17,16 +17,14 @@ defineProps({
   <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex flex-col justify-between">
     <!-- Header -->
     <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-      <div class="flex items-center gap-1.5 font-bold text-gray-800">
-        <span>Produtos Mais Vendidos</span>
-        <Info :size="13" class="text-gray-400 cursor-help" title="Itens com maior volume de faturamento em vendas confirmadas" />
-      </div>
+      <span class="font-bold text-gray-800">Produtos Mais Vendidos</span>
       <button
         type="button"
         title="Acessar catálogo de produtos"
-        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer"
+        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
         @click="router.push('/products')"
       >
+        <span>Ver catálogo</span>
         <ExternalLink :size="13" />
       </button>
     </div>

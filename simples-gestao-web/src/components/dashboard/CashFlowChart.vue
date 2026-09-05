@@ -11,7 +11,7 @@ import {
   CategoryScale,
   LinearScale,
 } from 'chart.js';
-import { Info, ExternalLink } from '@lucide/vue';
+import { ExternalLink } from '@lucide/vue';
 import { formatCurrency } from '@/utils/formatters';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
@@ -90,16 +90,14 @@ const router = useRouter();
   <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex flex-col justify-between">
     <!-- Header -->
     <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-      <div class="flex items-center gap-1.5 font-bold text-gray-800">
-        <span>Fluxo de Caixa Consolidado</span>
-        <Info :size="13" class="text-gray-400 cursor-help" title="Entradas e saídas financeiras consolidadas mês a mês" />
-      </div>
+      <span class="font-bold text-gray-800">Fluxo de Caixa Consolidado</span>
       <button
         type="button"
         title="Abrir livro caixa detalhado"
-        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer"
+        class="text-gray-400 hover:text-simples-orange transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
         @click="router.push('/transactions')"
       >
+        <span>Ver extrato</span>
         <ExternalLink :size="13" />
       </button>
     </div>
