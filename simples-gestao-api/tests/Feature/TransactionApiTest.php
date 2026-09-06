@@ -78,4 +78,22 @@ class TransactionApiTest extends TestCase
             'id' => $transaction->id,
         ]);
     }
+
+    public function test_cannot_create_transaction_with_mismatched_category_type(): void
+    {
+        $incomeCategory = FinancialCategory::factory()->create(['type' => 'income']);
+
+        $payload = [
+            'financial_category_id' => $incomeCategory->id,
+            'type' => 'expense', // Tentando criar despesa com categoria de receita!
+            'amount' => 200.00,
+            'description' => 'Despesa inválida',
+            'transaction_date' => now()->toDateString(),
+        ];
+
+        $response = $this->postJson('/api/transactions', $payload);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['financial_category_id']);
+    }
 }

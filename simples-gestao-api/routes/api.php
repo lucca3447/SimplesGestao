@@ -10,10 +10,10 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
 
-// Rotas públicas de autenticação
-Route::prefix('auth')->group(function () {
+// Rotas públicas de autenticação protegidas com rate limiting (15 tentativas por minuto)
+Route::prefix('auth')->middleware('throttle:15,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
 });
 
 // Rotas protegidas por token Sanctum
@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class);
 
     Route::patch('orders/{order}/confirm', [OrderController::class, 'confirm']);
+    Route::patch('orders/{order}/deliver', [OrderController::class, 'deliver']);
     Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel']);
     Route::apiResource('orders', OrderController::class);
 

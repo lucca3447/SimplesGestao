@@ -92,4 +92,17 @@ class CustomerApiTest extends TestCase
             'id' => $customer->id,
         ]);
     }
+
+    public function test_can_search_customers_case_insensitive(): void
+    {
+        Customer::factory()->create(['name' => 'Carlos Ferreira Silva', 'email' => 'carlos@empresa.com']);
+        Customer::factory()->create(['name' => 'Mariana Souza', 'email' => 'mariana@empresa.com']);
+
+        // Busca com termo minúsculo que deve encontrar nome com maiúsculas
+        $response = $this->getJson('/api/customers?search=carlos');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Carlos Ferreira Silva');
+    }
 }

@@ -19,7 +19,7 @@ class CategoryController extends Controller
         $query = Category::withCount('products');
 
         if ($search = $request->input('search')) {
-            $query->where('name', 'ilike', "%{$search}%");
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%']);
         }
 
         if ($request->boolean('all')) {

@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Validation\ValidationException;
 
 class FinancialCategoryController extends Controller
 {
@@ -23,7 +24,7 @@ class FinancialCategoryController extends Controller
         }
 
         if ($search = $request->input('search')) {
-            $query->where('name', 'ilike', "%{$search}%");
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%']);
         }
 
         if ($request->boolean('all')) {
@@ -53,6 +54,12 @@ class FinancialCategoryController extends Controller
 
     public function update(UpdateFinancialCategoryRequest $request, FinancialCategory $financialCategory): FinancialCategoryResource
     {
+        if ($request->filled('type') && $request->input('type') !== $financialCategory->type && $financialCategory->transactions()->exists()) {
+            throw ValidationException::withMessages([
+                'type' => ['Não é possível alterar o tipo de uma categoria financeira com lançamentos vinculados.'],
+            ]);
+        }
+
         $financialCategory->update($request->validated());
         $financialCategory->loadCount('transactions');
 
