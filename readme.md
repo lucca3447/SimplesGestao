@@ -1,6 +1,6 @@
 # 🚀 Simples — Sistema de Gestão Empresarial (ERP)
 
-[![CI / Automated Tests](https://github.com/lucca3447/SimplesGest-o/actions/workflows/ci.yml/badge.svg)](https://github.com/lucca3447/SimplesGest-o/actions/workflows/ci.yml)
+[![CI / Automated Tests](https://github.com/lucca3447/SimplesGestao/actions/workflows/ci.yml/badge.svg)](https://github.com/lucca3447/SimplesGestao/actions/workflows/ci.yml)
 
 > **Projeto Fullstack Desacoplado** composto por API REST em **Laravel 11**, banco de dados relacional **PostgreSQL (Docker)**, autenticação stateless **Laravel Sanctum** e Single Page Application (SPA) em **Vue 3 (Vite + Tailwind CSS + Pinia)**.  
 > Desenvolvido com foco nas necessidades reais de gestão para pequenas e médias empresas: clientes, catálogo, controle de estoque crítico, pedidos com congelamento histórico de preços e fluxo de caixa contábil consolidado.
