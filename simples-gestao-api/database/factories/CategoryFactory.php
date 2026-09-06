@@ -12,10 +12,7 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->randomElement([
-                'Bebidas', 'Alimentos', 'Eletrônicos', 'Vestuário',
-                'Higiene', 'Limpeza', 'Papelaria', 'Ferramentas',
-            ]),
+            'name' => ucfirst(fake()->words(2, true)) . ' ' . fake()->unique()->numberBetween(1, 999999),
             'description' => fake()->sentence(),
         ];
     }

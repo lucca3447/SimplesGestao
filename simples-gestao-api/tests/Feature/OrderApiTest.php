@@ -168,4 +168,52 @@ class OrderApiTest extends TestCase
             'order_id' => $order->id,
         ]);
     }
+
+    public function test_can_mark_confirmed_order_as_delivered(): void
+    {
+        $order = Order::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->patchJson("/api/orders/{$order->id}/deliver");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'delivered');
+
+        $this->assertEquals('delivered', $order->fresh()->status);
+    }
+
+    public function test_cannot_mark_pending_order_as_delivered(): void
+    {
+        $order = Order::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->patchJson("/api/orders/{$order->id}/deliver");
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['status']);
+
+        $this->assertEquals('pending', $order->fresh()->status);
+    }
+
+    public function test_cannot_create_order_with_duplicate_products(): void
+    {
+        $product = Product::factory()->create(['stock_quantity' => 10]);
+
+        $payload = [
+            'payment_method' => 'cash',
+            'items' => [
+                ['product_id' => $product->id, 'quantity' => 2],
+                ['product_id' => $product->id, 'quantity' => 3], // Produto duplicado!
+            ],
+        ];
+
+        $response = $this->postJson('/api/orders', $payload);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['items.0.product_id']);
+    }
 }

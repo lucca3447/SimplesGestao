@@ -58,7 +58,7 @@ class Order extends Model
     public function recalculateTotals(): void
     {
         $this->subtotal = $this->items()->sum('subtotal');
-        $this->total = $this->subtotal - $this->discount;
+        $this->total = max(0, (float) $this->subtotal - (float) ($this->discount ?? 0));
         $this->save();
     }
 
@@ -68,17 +68,20 @@ class Order extends Model
     public static function generateOrderNumber(): string
     {
         $date = now()->format('Ymd');
-        $lastOrder = static::where('order_number', 'like', "PED-{$date}-%")
-            ->orderBy('order_number', 'desc')
+        $prefix = "PED-{$date}-";
+
+        $lastOrder = static::where('order_number', 'like', "{$prefix}%")
+            ->orderByRaw('LENGTH(order_number) DESC, order_number DESC')
             ->first();
 
         if ($lastOrder) {
-            $lastNumber = (int) substr($lastOrder->order_number, -3);
-            $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            $parts = explode('-', $lastOrder->order_number);
+            $lastNumber = (int) end($parts);
+            $nextNumber = str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
         } else {
             $nextNumber = '001';
         }
 
-        return "PED-{$date}-{$nextNumber}";
+        return "{$prefix}{$nextNumber}";
     }
 }

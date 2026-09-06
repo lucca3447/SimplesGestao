@@ -15,7 +15,7 @@ class TransactionFactory extends Factory
         $type = fake()->randomElement(['income', 'expense']);
 
         return [
-            'financial_category_id' => FinancialCategory::factory(),
+            'financial_category_id' => FinancialCategory::factory()->state(['type' => $type]),
             'order_id' => null,
             'type' => $type,
             'amount' => fake()->randomFloat(2, 50, 5000),

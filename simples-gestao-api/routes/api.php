@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class);
 
     Route::patch('orders/{order}/confirm', [OrderController::class, 'confirm']);
+    Route::patch('orders/{order}/deliver', [OrderController::class, 'deliver']);
     Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel']);
     Route::apiResource('orders', OrderController::class);
 

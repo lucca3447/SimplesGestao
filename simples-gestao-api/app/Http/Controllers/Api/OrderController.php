@@ -177,7 +177,7 @@ class OrderController extends Controller
         $order->save();
 
         // Atualiza valor da transação financeira se o total mudou
-        if ($order->status === 'confirmed') {
+        if (in_array($order->status, ['confirmed', 'delivered'])) {
             $order->transactions()->where('type', 'income')->update([
                 'amount' => $order->total,
             ]);
@@ -190,28 +190,34 @@ class OrderController extends Controller
 
     public function confirm(Order $order): OrderResource
     {
-        if ($order->status !== 'pending') {
-            throw ValidationException::withMessages([
-                'status' => ["Apenas pedidos pendentes podem ser confirmados. Status atual: {$order->status}"],
-            ]);
-        }
-
         DB::transaction(function () use ($order) {
-            $order->load('items.product');
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
 
-            foreach ($order->items as $item) {
-                if ($item->product->stock_quantity < $item->quantity) {
+            if ($lockedOrder->status !== 'pending') {
+                throw ValidationException::withMessages([
+                    'status' => ["Apenas pedidos pendentes podem ser confirmados. Status atual: {$lockedOrder->status}"],
+                ]);
+            }
+
+            $lockedOrder->load('items');
+
+            // Verifica estoque com lock pessimista em cada produto
+            $lockedProducts = [];
+            foreach ($lockedOrder->items as $item) {
+                $product = Product::where('id', $item->product_id)->lockForUpdate()->firstOrFail();
+                if ($product->stock_quantity < $item->quantity) {
                     throw ValidationException::withMessages([
-                        'items' => ["Estoque insuficiente para {$item->product->name}. Disponível: {$item->product->stock_quantity}, Solicitado: {$item->quantity}"],
+                        'items' => ["Estoque insuficiente para {$product->name}. Disponível: {$product->stock_quantity}, Solicitado: {$item->quantity}"],
                     ]);
                 }
+                $lockedProducts[] = ['product' => $product, 'quantity' => $item->quantity];
             }
 
-            foreach ($order->items as $item) {
-                $item->product->decrement('stock_quantity', $item->quantity);
+            foreach ($lockedProducts as $entry) {
+                $entry['product']->decrement('stock_quantity', $entry['quantity']);
             }
 
-            $order->update(['status' => 'confirmed']);
+            $lockedOrder->update(['status' => 'confirmed']);
 
             $salesCategory = FinancialCategory::firstOrCreate(
                 ['name' => 'Vendas', 'type' => 'income']
@@ -219,42 +225,64 @@ class OrderController extends Controller
 
             Transaction::create([
                 'financial_category_id' => $salesCategory->id,
-                'order_id' => $order->id,
+                'order_id' => $lockedOrder->id,
                 'type' => 'income',
-                'amount' => $order->total,
-                'description' => "Venda #{$order->order_number}",
+                'amount' => $lockedOrder->total,
+                'description' => "Venda #{$lockedOrder->order_number}",
                 'transaction_date' => now()->toDateString(),
             ]);
         });
 
-        $order->load(['customer', 'user', 'items.product']);
+        $order->refresh()->load(['customer', 'user', 'items.product']);
+
+        return new OrderResource($order);
+    }
+
+    public function deliver(Order $order): OrderResource
+    {
+        DB::transaction(function () use ($order) {
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedOrder->status !== 'confirmed') {
+                throw ValidationException::withMessages([
+                    'status' => ["Apenas pedidos confirmados podem ser marcados como entregues. Status atual: {$lockedOrder->status}"],
+                ]);
+            }
+
+            $lockedOrder->update(['status' => 'delivered']);
+        });
+
+        $order->refresh()->load(['customer', 'user', 'items.product']);
 
         return new OrderResource($order);
     }
 
     public function cancel(Order $order): OrderResource
     {
-        if ($order->status === 'cancelled') {
-            throw ValidationException::withMessages([
-                'status' => ['Este pedido já está cancelado.'],
-            ]);
-        }
-
         DB::transaction(function () use ($order) {
-            $order->load('items.product');
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
 
-            if (in_array($order->status, ['confirmed', 'delivered'])) {
-                foreach ($order->items as $item) {
-                    $item->product->increment('stock_quantity', $item->quantity);
-                }
-
-                $order->transactions()->delete();
+            if ($lockedOrder->status === 'cancelled') {
+                throw ValidationException::withMessages([
+                    'status' => ['Este pedido já está cancelado.'],
+                ]);
             }
 
-            $order->update(['status' => 'cancelled']);
+            $lockedOrder->load('items');
+
+            if (in_array($lockedOrder->status, ['confirmed', 'delivered'])) {
+                foreach ($lockedOrder->items as $item) {
+                    Product::where('id', $item->product_id)->lockForUpdate()->firstOrFail()
+                        ->increment('stock_quantity', $item->quantity);
+                }
+
+                $lockedOrder->transactions()->delete();
+            }
+
+            $lockedOrder->update(['status' => 'cancelled']);
         });
 
-        $order->load(['customer', 'user', 'items.product']);
+        $order->refresh()->load(['customer', 'user', 'items.product']);
 
         return new OrderResource($order);
     }
