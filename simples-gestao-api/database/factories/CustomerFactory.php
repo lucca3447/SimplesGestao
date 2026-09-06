@@ -33,7 +33,7 @@ class CustomerFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
-            'cpf_cnpj' => fake()->unique()->cpf(),   // Faker pt_BR gera CPF válido!
+            'cpf_cnpj' => fake()->unique()->numerify('###.###.###-##'),
             'address' => fake()->address(),
             'notes' => fake()->optional(0.3)->sentence(), // 30% chance de ter nota
         ];
