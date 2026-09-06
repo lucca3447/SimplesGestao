@@ -71,22 +71,25 @@ class DashboardController extends Controller
         $monthsCount = min(12, max(3, $request->integer('months', 6)));
         $cashFlow = [];
 
-        // Monta o fluxo de caixa dos últimos N meses de forma compatível
+        $earliestMonth = Carbon::now()->subMonths($monthsCount - 1)->startOfMonth()->toDateString();
+        $latestMonth = Carbon::now()->endOfMonth()->toDateString();
+
+        // Carrega todas as transações do período em uma única consulta rápida
+        $periodTransactions = Transaction::whereBetween('transaction_date', [$earliestMonth, $latestMonth])
+            ->select('type', 'amount', 'transaction_date')
+            ->get()
+            ->groupBy(fn ($t) => substr((string) $t->transaction_date, 0, 7));
+
         for ($i = $monthsCount - 1; $i >= 0; $i--) {
             $monthDate = Carbon::now()->subMonths($i);
-            $monthStart = $monthDate->copy()->startOfMonth()->toDateString();
-            $monthEnd = $monthDate->copy()->endOfMonth()->toDateString();
+            $monthKey = $monthDate->format('Y-m');
+            $monthItems = $periodTransactions->get($monthKey, collect());
 
-            $income = (float) (Transaction::where('type', 'income')
-                ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-                ->sum('amount') ?? 0);
-
-            $expense = (float) (Transaction::where('type', 'expense')
-                ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-                ->sum('amount') ?? 0);
+            $income = (float) $monthItems->where('type', 'income')->sum('amount');
+            $expense = (float) $monthItems->where('type', 'expense')->sum('amount');
 
             $cashFlow[] = [
-                'month_key' => $monthDate->format('Y-m'),
+                'month_key' => $monthKey,
                 'label' => $monthDate->translatedFormat('M/y'),
                 'income' => round($income, 2),
                 'expense' => round($expense, 2),
@@ -172,7 +175,15 @@ class DashboardController extends Controller
     private function resolveDateRange(Request $request): array
     {
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            return [$request->input('start_date'), $request->input('end_date')];
+            try {
+                $start = Carbon::parse($request->input('start_date'))->toDateString();
+                $end = Carbon::parse($request->input('end_date'))->toDateString();
+                if ($start <= $end) {
+                    return [$start, $end];
+                }
+            } catch (\Exception) {
+                // Em caso de formato inválido, recorre ao período padrão abaixo
+            }
         }
 
         $period = $request->input('period', 'this_month');
