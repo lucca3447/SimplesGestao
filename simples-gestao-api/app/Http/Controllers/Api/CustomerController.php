@@ -19,9 +19,10 @@ class CustomerController extends Controller
         $query = Customer::query();
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('email', 'ilike', "%{$search}%")
+            $term = '%' . mb_strtolower($search) . '%';
+            $query->where(function ($q) use ($term, $search) {
+                $q->whereRaw('LOWER(name) LIKE ?', [$term])
+                  ->orWhereRaw('LOWER(email) LIKE ?', [$term])
                   ->orWhere('cpf_cnpj', 'like', "%{$search}%");
             });
         }

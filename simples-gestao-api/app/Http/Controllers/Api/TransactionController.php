@@ -36,7 +36,7 @@ class TransactionController extends Controller
         }
 
         if ($search = $request->input('search')) {
-            $query->where('description', 'ilike', "%{$search}%");
+            $query->whereRaw('LOWER(description) LIKE ?', ['%' . mb_strtolower($search) . '%']);
         }
 
         $transactions = $query->orderByDesc('transaction_date')

@@ -33,10 +33,11 @@ class OrderController extends Controller
         }
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'ilike', "%{$search}%")
-                  ->orWhereHas('customer', function ($cq) use ($search) {
-                      $cq->where('name', 'ilike', "%{$search}%");
+            $term = '%' . mb_strtolower($search) . '%';
+            $query->where(function ($q) use ($term) {
+                $q->whereRaw('LOWER(order_number) LIKE ?', [$term])
+                  ->orWhereHas('customer', function ($cq) use ($term) {
+                      $cq->whereRaw('LOWER(name) LIKE ?', [$term]);
                   });
             });
         }
