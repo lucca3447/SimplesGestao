@@ -1,5 +1,7 @@
 # 🚀 Simples — Sistema de Gestão Empresarial (ERP)
 
+[![CI / Automated Tests](https://github.com/lucca3447/SimplesGest-o/actions/workflows/ci.yml/badge.svg)](https://github.com/lucca3447/SimplesGest-o/actions/workflows/ci.yml)
+
 > **Projeto Fullstack Desacoplado** composto por API REST em **Laravel 11**, banco de dados relacional **PostgreSQL (Docker)**, autenticação stateless **Laravel Sanctum** e Single Page Application (SPA) em **Vue 3 (Vite + Tailwind CSS + Pinia)**.  
 > Desenvolvido com foco nas necessidades reais de gestão para pequenas e médias empresas: clientes, catálogo, controle de estoque crítico, pedidos com congelamento histórico de preços e fluxo de caixa contábil consolidado.
 
@@ -38,7 +40,7 @@ O projeto adota arquitetura desacoplada (Headless / API-First):
 * **Laravel Sanctum:** Autenticação stateless via Bearer Tokens com persistência segura
 * **Eloquent ORM:** Relacionamentos `hasMany` / `belongsTo`, casts nativos e locks pessimistas (`lockForUpdate`)
 * **Dedoc Scramble:** Documentação interativa OpenAPI 3.1 / Swagger UI nativa
-* **PHPUnit:** 29 testes de integração automatizados com 100% de aprovação (221 asserções)
+* **PHPUnit:** 43 testes de integração automatizados com 100% de aprovação (274 asserções)
 
 ### Frontend
 * **Vue 3 (Composition API & `<script setup>`)** com **Vite**
@@ -184,6 +186,7 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 | `GET` | `/api/orders/{id}` | **Sim** | Detalha pedido com itens, cliente e operador. |
 | `PUT` | `/api/orders/{id}` | **Sim** | Atualiza forma de pagamento, desconto ou notas. |
 | `PATCH` | `/api/orders/{id}/confirm` | **Sim** | **Confirma venda:** valida estoque, dá baixa atômica e gera receita contábil. |
+| `PATCH` | `/api/orders/{id}/deliver` | **Sim** | **Marca como entregue:** conclui o ciclo de entrega de pedidos confirmados. |
 | `PATCH` | `/api/orders/{id}/cancel` | **Sim** | **Cancela venda:** estorna estoque ao inventário e anula o lançamento financeiro. |
 | `DELETE` | `/api/orders/{id}` | **Sim** | Exclui pedido (apenas se já estiver cancelado). |
 
@@ -195,7 +198,7 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 |---|---|---|---|
 | `GET` | `/api/financial-categories` | **Sim** | Lista categorias de receitas/despesas (`type=income\|expense`). |
 | `POST` | `/api/financial-categories` | **Sim** | Cadastra categoria contábil. |
-| `PUT` | `/api/financial-categories/{id}` | **Sim** | Atualiza categoria. |
+| `PUT` | `/api/financial-categories/{id}` | **Sim** | Atualiza categoria (bloqueia mutação de tipo com lançamentos). |
 | `DELETE` | `/api/financial-categories/{id}` | **Sim** | Exclui categoria (bloqueia com 422 se possuir transações). |
 
 ---
@@ -221,23 +224,46 @@ O arquivo de especificação OpenAPI 3.1 também está disponível em `http://lo
 
 ---
 
-## 🧪 Testes Automatizados
+## 🧪 Testes Automatizados (99 Testes)
 
-O projeto conta com suíte de testes de integração via **PHPUnit**, executados em banco SQLite isolado em memória RAM:
+O projeto conta com cobertura total automatizada tanto no backend quanto no frontend, executados em ambiente de CI/CD via GitHub Actions:
+
+### ⚙️ Backend (PHPUnit — 43 testes)
+Executados com banco SQLite em memória RAM isolado para máxima velocidade:
 
 ```bash
-# Executar todos os 29 testes
+cd simples-gestao-api
+
+# Executar todos os 43 testes
 php artisan test
 
-# Executar suíte específica
+# Executar suítes específicas
 php artisan test --filter=OrderApiTest
-php artisan test --filter=AuthApiTest
-php artisan test --filter=DashboardApiTest
+php artisan test --filter=FinancialCategoryApiTest
+php artisan test --filter=CustomerApiTest
 ```
 
-**Status Atual:**
+### 💻 Frontend (Vitest — 56 testes)
+Testes unitários e de componentes Vue 3 montados via `@vue/test-utils` e ambiente Happy-DOM:
+
+```bash
+cd simples-gestao-web
+
+# Executar todos os 56 testes
+npm test
+
+# Modo de desenvolvimento (watch)
+npm run test:watch
+
+# Testar compilação de produção
+npm run build
+```
+
+**Status Consolidado:**
 ```text
-Pass: 29 tests, 221 assertions (0 failures)
+Backend:  43 passed (274 assertions) em 1.57s  ✅
+Frontend: 56 passed (5 test suites)  em 1.10s  ✅
+Total:    99 testes automatizados (0 falhas)   🚀
 ```
 
 ---

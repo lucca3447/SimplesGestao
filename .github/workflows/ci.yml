@@ -1,0 +1,70 @@
+name: CI / Automated Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    name: Backend Tests (Laravel 11)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: simples-gestao-api
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath
+          coverage: none
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Composer Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Generate App Key
+        run: php artisan key:generate
+
+      - name: Run Backend Tests (PHPUnit)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: php artisan test
+
+  frontend-tests:
+    name: Frontend Tests & Build (Vue 3)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: simples-gestao-web
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: simples-gestao-web/package-lock.json
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Run Vitest Suite
+        run: npm test
+
+      - name: Run Production Build
+        run: npm run build
