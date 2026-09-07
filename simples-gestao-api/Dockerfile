@@ -5,7 +5,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Configurações do Nginx e PHP
-ENV SKIP_COMPOSER 0
+ENV SKIP_COMPOSER 1
 ENV WEBROOT /var/www/html/public
 ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1
@@ -16,6 +16,9 @@ ENV APP_ENV production
 ENV APP_DEBUG false
 ENV LOG_CHANNEL stderr
 ENV COMPOSER_ALLOW_SUPERUSER 1
+
+# Instala dependências de produção com o Composer durante a compilação da imagem Docker
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Permissões de armazenamento e scripts
 RUN chmod +x /var/www/html/scripts/00-laravel-deploy.sh \

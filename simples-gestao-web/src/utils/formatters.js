@@ -8,8 +8,13 @@ export function formatCurrency(value) {
 
 export function formatDate(dateString) {
   if (!dateString) return '-';
+  // Se for apenas data no formato YYYY-MM-DD (ex: datas de transação), formata diretamente sem deslocamento de fuso
+  if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString.trim())) {
+    const [year, month, day] = dateString.trim().split('-');
+    return `${day}/${month}/${year}`;
+  }
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('pt-BR').format(date);
+  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' }).format(date);
 }
 
 export function formatDateTime(dateString) {
@@ -18,6 +23,7 @@ export function formatDateTime(dateString) {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
+    timeZone: 'America/Sao_Paulo',
   }).format(date);
 }
 

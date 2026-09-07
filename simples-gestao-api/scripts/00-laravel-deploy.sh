@@ -3,6 +3,11 @@ echo "==> [Render Deploy] Iniciando deploy do Laravel..."
 
 cd /var/www/html
 
+if [ ! -f "vendor/autoload.php" ]; then
+    echo "==> [Render Deploy] Instalando dependências do Composer..."
+    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+fi
+
 echo "==> [Render Deploy] Limpando caches..."
 php artisan config:clear
 php artisan route:clear
