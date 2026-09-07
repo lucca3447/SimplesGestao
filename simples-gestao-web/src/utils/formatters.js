@@ -14,7 +14,7 @@ export function formatDate(dateString) {
     return `${day}/${month}/${year}`;
   }
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' }).format(date);
+  return new Intl.DateTimeFormat('pt-BR').format(date);
 }
 
 export function formatDateTime(dateString) {
@@ -23,7 +23,6 @@ export function formatDateTime(dateString) {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
-    timeZone: 'America/Sao_Paulo',
   }).format(date);
 }
 
