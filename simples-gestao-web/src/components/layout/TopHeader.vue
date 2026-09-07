@@ -2,13 +2,14 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import api from '@/api/client';
 import {
   Menu,
   Search,
   ChevronDown,
   LogOut,
   FileCode,
-  User,
+  RotateCcw,
 } from '@lucide/vue';
 
 defineEmits(['toggle-sidebar']);
@@ -17,6 +18,7 @@ const router = useRouter();
 const auth = useAuthStore();
 const clientSearch = ref('');
 const isUserMenuOpen = ref(false);
+const isResetting = ref(false);
 
 function handleClientSearch() {
   if (clientSearch.value.trim()) {
@@ -29,6 +31,23 @@ async function handleLogout() {
   isUserMenuOpen.value = false;
   await auth.logout();
   router.push('/login');
+}
+
+async function handleResetDemo() {
+  if (!confirm('Deseja restaurar o banco de dados para o estado inicial de demonstração? Clientes, produtos e pedidos serão resetados para os valores padrão.')) {
+    return;
+  }
+  isUserMenuOpen.value = false;
+  isResetting.value = true;
+  try {
+    const response = await api.post('/demo/reset');
+    alert(response.data?.message || 'Dados de demonstração restaurados com sucesso!');
+    window.location.reload();
+  } catch (err) {
+    alert(err.response?.data?.message || 'Falha ao restaurar banco demo. Aguarde 1 minuto para tentar novamente.');
+  } finally {
+    isResetting.value = false;
+  }
 }
 </script>
 
@@ -73,6 +92,18 @@ async function handleLogout() {
         <span>Docs API</span>
       </a>
 
+      <!-- Botão Restaurar Dados Demo -->
+      <button
+        type="button"
+        :disabled="isResetting"
+        class="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors cursor-pointer disabled:opacity-50"
+        title="Restaurar dados de teste padrão do sistema"
+        @click="handleResetDemo"
+      >
+        <RotateCcw :size="13" :class="{ 'animate-spin': isResetting }" />
+        <span>{{ isResetting ? 'Restaurando...' : 'Resetar Demo' }}</span>
+      </button>
+
       <!-- User Profile Dropdown Pill -->
       <div class="relative">
         <button
@@ -110,6 +141,15 @@ async function handleLogout() {
             <FileCode :size="14" class="text-simples-orange" />
             <span>Documentação OpenAPI</span>
           </a>
+
+          <button
+            type="button"
+            class="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-amber-50 text-amber-700 font-medium text-left transition-colors cursor-pointer"
+            @click="handleResetDemo"
+          >
+            <RotateCcw :size="14" />
+            <span>Restaurar Dados Demo</span>
+          </button>
 
           <button
             type="button"

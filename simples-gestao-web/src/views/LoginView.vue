@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import logoFull from '@/assets/logo-full.png';
-import { LogIn, AlertCircle, Loader2 } from '@lucide/vue';
+import api from '@/api/client';
+import { LogIn, AlertCircle, Loader2, RotateCcw, CheckCircle2 } from '@lucide/vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -11,6 +12,8 @@ const auth = useAuthStore();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const isResetting = ref(false);
+const resetSuccessMessage = ref('');
 
 async function handleSubmit() {
   errorMessage.value = '';
@@ -31,6 +34,23 @@ function fillDemoCredentials(type = 'admin') {
     password.value = 'password';
   }
   handleSubmit();
+}
+
+async function handleResetDemo() {
+  if (!confirm('Deseja restaurar o banco de dados para o estado inicial de demonstração? Isso irá redefinir clientes, produtos e pedidos para os dados originais de teste.')) {
+    return;
+  }
+  isResetting.value = true;
+  errorMessage.value = '';
+  resetSuccessMessage.value = '';
+  try {
+    const response = await api.post('/demo/reset');
+    resetSuccessMessage.value = response.data?.message || 'Banco de dados restaurado com sucesso!';
+  } catch (err) {
+    errorMessage.value = err.response?.data?.message || 'Falha ao restaurar banco de dados demo. Tente novamente em 1 minuto.';
+  } finally {
+    isResetting.value = false;
+  }
 }
 </script>
 
@@ -122,6 +142,26 @@ function fillDemoCredentials(type = 'admin') {
         >
           👥 Operador
           <span class="block text-[10px] text-gray-400 font-normal">Vendas e estoque</span>
+        </button>
+      </div>
+
+      <!-- Feedback de Sucesso da Restauração -->
+      <div v-if="resetSuccessMessage" class="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-xl border border-emerald-200 animate-fade-in">
+        <CheckCircle2 :size="15" class="shrink-0 text-emerald-500" />
+        <span>{{ resetSuccessMessage }}</span>
+      </div>
+
+      <!-- Botão para Restaurar Banco de Dados Demo -->
+      <div class="pt-2 border-t border-gray-100 text-center">
+        <button
+          type="button"
+          :disabled="isResetting"
+          class="text-[11px] text-gray-500 hover:text-simples-orange inline-flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+          title="Restaura os dados originais caso alguém tenha excluído ou alterado registros"
+          @click="handleResetDemo"
+        >
+          <RotateCcw :size="12" :class="{ 'animate-spin': isResetting }" />
+          <span>{{ isResetting ? 'Restaurando banco de dados...' : 'Restaurar dados de teste padrão' }}</span>
         </button>
       </div>
     </div>
