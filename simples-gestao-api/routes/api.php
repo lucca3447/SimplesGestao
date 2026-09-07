@@ -7,8 +7,12 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FinancialCategoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\DemoController;
 use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
+
+// Rota pública de reset do banco demo (com trava estrita de 1 reset por minuto por IP)
+Route::post('/demo/reset', [DemoController::class, 'reset'])->middleware('throttle:1,1');
 
 // Rotas públicas de autenticação protegidas com rate limiting (15 tentativas por minuto)
 Route::prefix('auth')->middleware('throttle:15,1')->group(function () {

@@ -261,9 +261,9 @@ npm run build
 
 **Status Consolidado:**
 ```text
-Backend:  43 passed (274 assertions) em 1.57s  ✅
+Backend:  44 passed (278 assertions) em 1.30s  ✅
 Frontend: 56 passed (5 test suites)  em 1.10s  ✅
-Total:    99 testes automatizados (0 falhas)   🚀
+Total:    100 testes automatizados (0 falhas)  🚀
 ```
 
 ---
@@ -275,3 +275,4 @@ Total:    99 testes automatizados (0 falhas)   🚀
 3. **Prevenção de Escalação de Privilégios:** O cadastro público de usuários força o papel `operator` no backend, ignorando qualquer tentativa de injeção de `role: admin`.
 4. **Precisão Monetária:** Todos os valores financeiros são modelados em colunas `decimal(10,2)` e `decimal(12,2)`, eliminando erros de ponto flutuante.
 5. **Modern Web Standards:** Adoção de `<dialog closedby="any">` para caixas modais declarativas com suporte a light dismiss e fallback progressivo para navegadores legados, formulários semânticos e tipagem estrita de inputs.
+6. **Proteção de Demonstração Pública:** Endpoint seguro `POST /api/demo/reset` com rate limiting (1 chamada/minuto/IP) e acionamento por botão de 1 clique, permitindo que qualquer avaliador restaure o banco de dados original (15 clientes, 14 produtos, 20 pedidos e 29 transações) caso alguém altere ou apague dados.
