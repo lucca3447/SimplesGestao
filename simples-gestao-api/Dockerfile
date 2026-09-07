@@ -1,28 +1,22 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM serversideup/php:8.4-fpm-nginx
+
+USER root
+
+# Instala extensões necessárias para o PostgreSQL e Laravel
+RUN install-php-extensions pdo_pgsql bcmath intl opcache
 
 WORKDIR /var/www/html
 
-COPY . /var/www/html
+# Copia os arquivos do projeto com ownership do www-data
+COPY --chown=www-data:www-data . /var/www/html
 
-# Configurações do Nginx e PHP
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Copia o script de deploy para o entrypoint.d do S6-overlay
+COPY --chmod=755 scripts/00-laravel-deploy.sh /etc/entrypoint.d/99-laravel-deploy.sh
 
-# Configurações do Laravel
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Instala dependências de produção com o Composer durante a compilação da imagem Docker
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-# Permissões de armazenamento e scripts
-RUN chmod +x /var/www/html/scripts/00-laravel-deploy.sh \
-    && chown -R nginx:nginx /var/www/html/storage /var/www/html/bootstrap/cache \
+# Garante permissões adequadas em storage e cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-CMD ["/start.sh"]
+# Instala as dependências de produção do Composer usando o PHP 8.4 nativo
+USER www-data
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
